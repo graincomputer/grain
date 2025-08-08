@@ -1,0 +1,31 @@
+## 1. Enforce Workspace-Scoped Database Queries
+All Drizzle ORM queries that access tenant-specific data (e.g., projects, tasks, agents) MUST be filtered by `workspaceId`. This is a critical security requirement for our multi-tenant application.
+
+**Correct Example:**
+```typescript
+import { db } from '@/lib/db';
+import { tasks } from '@/lib/db/schema';
+import { eq, and } from 'drizzle-orm';
+
+async function getTasksForWorkspace(workspaceId: string) {
+  return await db.query.tasks.findMany({
+    where: and(
+      eq(tasks.workspaceId, workspaceId),
+      // ... other conditions
+    )
+  });
+}
+```
+
+## 2. Standardize on `shadcn/ui` Components
+Before creating a new UI component, check if a suitable building block exists in `shadcn/ui` (our components in `components/ui/`). We should compose complex UI from these primitives (e.g., `Card`, `Table`, `Dialog`, `Button`, `Input`) to ensure visual consistency and development efficiency. Only create a net-new component if no existing primitive fits the need.
+
+## 3. Define Backend Logic: Server Actions vs. API Routes
+- **Use Server Actions:** For most application-internal backend logic, such as data mutations, form submissions, and data fetching initiated from React Components. Keep them co-located with the components that use them or in a relevant `actions.ts` file.
+- **Use API Routes:** For functionality that needs to be accessed by external services (e.g., webhooks from Stripe or GitHub) or non-Next.js clients.
+
+## 4. Organize the Database Schema
+All new database tables should be added to the main schema file at `lib/db/schema.ts`. To keep the schema readable, please group related tables under commented-out headers (e.g., `-- Project Management --`, `-- Agent Configuration --`).
+
+## 5. Favor Simplicity and Avoid Premature Abstraction
+When adding new features or writing code, always favor the simplest and clearest implementation path. Avoid adding complex design patterns or layers of abstraction until they are clearly required. This helps maintain development velocity and keeps the codebase easy to understand.
