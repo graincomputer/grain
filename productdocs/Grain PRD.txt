@@ -1,0 +1,149 @@
+## **1. PROJECT OVERVIEW & PRODUCT CONCEPTS**
+
+# Grain - Digital Workforce Platform
+
+## Vision
+Grain is a multi-user digital workforce platform that extends Vercel's Chat SDK with Mastra-powered agents, enabling teams to collaborate with AI agents as naturally as they do with human colleagues. It combines conversational AI, project management, and intelligent automation into a unified workspace.
+
+## Engineering Approach
+
+We are in Direct Edit Mode. We modify the Chat SDK template in-place for clarity and velocity. Overlay separation is no longer a constraint.
+
+- Modify existing `app/*`, `components/*`, and `lib/*` when it produces the simplest code.
+- Enforce workspace isolation at the data and API layers (every query scoped by `workspaceId`).
+- Keep agent integrations testable; prefer a small wrapper around Mastra when usage grows.
+- Database: add Grain tables in `lib/db/schema.ts` (grouped under section headers) or `lib/db/schema/grain.ts` — both acceptable.
+- Document notable design decisions in `productdocs/` and PR descriptions.
+
+## Product Architecture
+
+### 1. **Workspace System**
+- **Multi-tenancy**: Each workspace is an isolated environment
+- **Billing Boundary**: Plans and usage tracked per workspace
+- **Member Roles**: Owner, Admin, Member, Guest
+- **Resource Limits**: Based on subscription tier
+
+### 2. **Digital Workforce (Agents)**
+```
+Agent Lifecycle:
+Create → Configure → Share → Assign → Execute → Learn → Improve
+```
+
+**Agent Properties**:
+- **Identity**: Name, avatar, role (researcher, developer, analyst, etc.)
+- **Capabilities**: Model, tools, skills, constraints
+- **Performance**: Success rate, response time, total runs
+- **Access**: Private, workspace-wide, or public
+
+**Agent Features**:
+- Assignable to tasks like human workers
+- Maintains conversation context
+- Can hand off to humans when needed
+- Performance tracked and optimized
+
+### 3. **Project Management**
+**Hierarchy**:
+```
+Workspace
+  └── Projects
+       └── Tasks
+            └── Assignments (Human or Agent)
+```
+
+**Task Intelligence**:
+- Auto-assignment to best available agent
+- Human review requirements
+- Time tracking and estimates
+- Priority and deadline management
+
+### 4. **Conversational Interface**
+**Enhanced Chat Features**:
+- Slash commands (`/project`, `/task`, `/agent`)
+- @mentions for humans and agents
+- Inline task creation and updates
+- Agent responses with attribution
+- Tool execution visibility
+
+### 5. **Tool & Workflow System**
+**Tool Types**:
+- Built-in (weather, search, etc.)
+- Integrations (GitHub, Slack, etc.)
+- Custom (user-created functions)
+- MCP (Model Context Protocol)
+
+**Workflow Capabilities**:
+- Visual workflow builder
+- Conditional logic
+- Human approval steps
+- Scheduled execution
+- Event triggers
+
+## Key User Flows
+
+### 1. **Quick Task Creation**
+```
+User: /task "Research competitor pricing" @ResearchBot
+System: ✓ Task created and assigned to ResearchBot
+ResearchBot: I'll analyze competitor pricing across 5 main competitors...
+```
+
+### 2. **Project Setup with Templates**
+```
+User: /project "Q1 Product Launch" --template=product-launch
+System: ✓ Created project with 12 tasks, assigned 3 to agents
+```
+
+### 3. **Agent Collaboration**
+```
+User: "Can you help me review this code?"
+CodeReviewBot: "I'll analyze the code for best practices..."
+[Creates subtask, executes review, provides feedback]
+User: "Please fix the security issues you found"
+CodeReviewBot: [Updates code, creates PR]
+```
+
+## Data Model Overview
+
+### Core Entities
+1. **Workspace** - Tenant boundary
+2. **User** - Human accounts
+3. **Agent** - AI workers
+4. **Project** - Work containers
+5. **Task** - Work units
+6. **Assignment** - Links tasks to workers
+7. **Tool** - Executable functions
+8. **Conversation** - Chat threads
+9. **Activity** - Audit trail
+
+### Key Relationships
+- Users belong to Workspaces via Memberships
+- Agents are created within Workspaces
+- Tasks can be assigned to Users OR Agents
+- Conversations can spawn Tasks
+- Agents use Tools to complete work
+- All actions create Activity logs
+
+## Technical Stack
+- **Frontend**: Next.js (App Router), Tailwind CSS, shadcn/ui
+- **Backend**: Next.js API routes, Server Actions (direct edits allowed)
+- **Database**: PostgreSQL (Neon), Drizzle ORM (Grain tables live with core schema)
+- **AI**: Vercel AI SDK; Mastra integration (wrapped or direct, based on simplicity)
+- **Auth**: Auth.js (NextAuth) with workspace roles
+- **Storage**: Vercel Blob
+- **Real-time**: Server-Sent Events for streaming
+
+## Differentiation
+1. **Unified Interface**: Chat, tasks, and agents in one platform
+2. **True Multi-Agent**: Agents are first-class team members
+3. **Open Ecosystem**: Create and share agents/tools
+4. **Progressive Enhancement**: Works as chat, scales to workforce
+5. **Developer-First**: API-driven, extensible architecture
+
+## Success Metrics
+- **Activation**: User creates first agent and completes task
+- **Engagement**: Tasks completed per workspace per week
+- **Efficiency**: % of tasks completed by agents vs humans
+- **Quality**: Agent task success rate
+- **Growth**: Agents shared across workspaces
+
+---
