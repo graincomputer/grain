@@ -133,53 +133,64 @@ export async function POST(request: Request) {
       country,
     };
 
-    await saveMessages({
-      messages: [
-        {
-          chatId: id,
-          id: message.id,
-          role: 'user',
-          parts: message.parts,
-          attachments: [],
-          createdAt: new Date(),
-        },
-      ],
-    });
+    try {
+      await saveMessages({
+        messages: [
+          {
+            chatId: id,
+            id: message.id,
+            role: 'user',
+            parts: message.parts,
+            attachments: [],
+            createdAt: new Date(),
+          },
+        ],
+      });
+    } catch (dbError) {
+      console.error('Error saving user message to DB:', dbError);
+      throw dbError; // Re-throw to be caught by the main handler
+    }
 
     const streamId = generateUUID();
     await createStreamId({ streamId, chatId: id });
 
     const stream = createUIMessageStream({
       execute: ({ writer: dataStream }) => {
-        const result = streamText({
-          model: myProvider.languageModel(selectedChatModel),
-          system: systemPrompt({ selectedChatModel, requestHints }),
-          messages: convertToModelMessages(uiMessages),
-          stopWhen: stepCountIs(5),
-          experimental_activeTools:
-            selectedChatModel === 'chat-model-reasoning'
-              ? []
-              : [
-                  'getWeather',
-                  'createDocument',
-                  'updateDocument',
-                  'requestSuggestions',
-                ],
-          experimental_transform: smoothStream({ chunking: 'word' }),
-          tools: {
-            getWeather,
-            createDocument: createDocument({ session, dataStream }),
-            updateDocument: updateDocument({ session, dataStream }),
-            requestSuggestions: requestSuggestions({
-              session,
-              dataStream,
-            }),
-          },
-          experimental_telemetry: {
-            isEnabled: isProductionEnvironment,
-            functionId: 'stream-text',
-          },
-        });
+        let result;
+        try {
+          result = streamText({
+            model: myProvider.languageModel(selectedChatModel),
+            system: systemPrompt({ selectedChatModel, requestHints }),
+            messages: convertToModelMessages(uiMessages),
+            stopWhen: stepCountIs(5),
+            experimental_activeTools:
+              selectedChatModel === 'chat-model-reasoning'
+                ? []
+                : [
+                    'getWeather',
+                    'createDocument',
+                    'updateDocument',
+                    'requestSuggestions',
+                  ],
+            experimental_transform: smoothStream({ chunking: 'word' }),
+            tools: {
+              getWeather,
+              createDocument: createDocument({ session, dataStream }),
+              updateDocument: updateDocument({ session, dataStream }),
+              requestSuggestions: requestSuggestions({
+                session,
+                dataStream,
+              }),
+            },
+            experimental_telemetry: {
+              isEnabled: isProductionEnvironment,
+              functionId: 'stream-text',
+            },
+          });
+        } catch (aiError) {
+          console.error('Error calling streamText AI provider:', aiError);
+          throw aiError; // Re-throw to be caught by the main handler
+        }
 
         result.consumeStream();
 
@@ -191,16 +202,21 @@ export async function POST(request: Request) {
       },
       generateId: generateUUID,
       onFinish: async ({ messages }) => {
-        await saveMessages({
-          messages: messages.map((message) => ({
-            id: message.id,
-            role: message.role,
-            parts: message.parts,
-            createdAt: new Date(),
-            attachments: [],
-            chatId: id,
-          })),
-        });
+        try {
+          await saveMessages({
+            messages: messages.map((message) => ({
+              id: message.id,
+              role: message.role,
+              parts: message.parts,
+              createdAt: new Date(),
+              attachments: [],
+              chatId: id,
+            })),
+          });
+        } catch (dbError) {
+          console.error('Error saving assistant messages to DB:', dbError);
+          // Don't re-throw here as it's a background task
+        }
       },
       onError: () => {
         return 'Oops, an error occurred!';
@@ -222,6 +238,9 @@ export async function POST(request: Request) {
     if (error instanceof ChatSDKError) {
       return error.toResponse();
     }
+
+    console.error('An unexpected error occurred in chat API:', error);
+    return new ChatSDKError('internal_server_error:api').toResponse();
   }
 }
 

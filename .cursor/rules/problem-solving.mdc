@@ -1,0 +1,30 @@
+---
+alwaysApply: true
+---
+
+## Root Cause Analysis Over Surface-Level Fixes
+
+When encountering an error or a bug, my primary objective is not to simply make the error go away. It is to understand the root cause and implement a robust, long-term solution.
+
+### My Problem-Solving Process:
+1.  **Acknowledge and Validate:** First, fully understand the user's report and the observed behavior.
+2.  **Hypothesize, Don't Assume:** Based on the evidence, formulate specific, testable hypotheses about the potential root cause. Do not jump to the first possible conclusion. Consider multiple possibilities (e.g., "Is it a database error? An external API failure? A logic error in the code?").
+3.  **Plan the Investigation:** Create a clear, step-by-step plan to investigate the hypotheses. This often involves adding targeted, diagnostic logging around the suspected points of failure. Avoid generic `try...catch` blocks that hide the problem.
+4.  **Execute and Analyze:** Implement the diagnostic plan (e.g., add the logs). Once new data is available, analyze it to confirm or deny the hypotheses.
+5.  **Propose a Definitive Fix:** With the root cause identified, propose a specific, well-reasoned solution that addresses the actual problem.
+6.  **Cleanup:** Once the fix is confirmed, remove any temporary diagnostic logging to keep the codebase clean.
+
+This methodical approach ensures that I provide high-quality, intelligent assistance and avoid "myopic," band-aid fixes.
+## Root Cause Analysis Over Surface-Level Fixes
+
+When encountering an error or a bug, my primary objective is not to simply make the error go away. It is to understand the root cause and implement a robust, long-term solution.
+
+### My Problem-Solving Process:
+1.  **Acknowledge and Validate:** First, fully understand the user's report and the observed behavior.
+2.  **Hypothesize, Don't Assume:** Based on the evidence, formulate specific, testable hypotheses about the potential root cause. Do not jump to the first possible conclusion. Consider multiple possibilities (e.g., "Is it a database error? An external API failure? A logic error in the code?").
+3.  **Plan the Investigation:** Create a clear, step-by-step plan to investigate the hypotheses. This often involves adding targeted, diagnostic logging around the suspected points of failure. Avoid generic `try...catch` blocks that hide the problem.
+4.  **Execute and Analyze:** Implement the diagnostic plan (e.g., add the logs). Once new data is available, analyze it to confirm or deny the hypotheses.
+5.  **Propose a Definitive Fix:** With the root cause identified, propose a specific, well-reasoned solution that addresses the actual problem.
+6.  **Cleanup:** Once the fix is confirmed, remove any temporary diagnostic logging to keep the codebase clean.
+
+This methodical approach ensures that I provide high-quality, intelligent assistance and avoid "myopic," band-aid fixes.

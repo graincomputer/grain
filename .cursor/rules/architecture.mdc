@@ -1,3 +1,19 @@
+---
+alwaysApply: true
+---
+## Agent and Tool Architecture
+
+Our agent architecture separates the "brain" from the "toolbelt" to maximize development velocity and leverage specialized platforms.
+
+- **Agent Framework (The Brain)**: All agent logic, including reasoning, memory, and orchestration, should be built using the **Mastra** framework.
+- **Tool Integration (The Toolbelt)**: For integrations with third-party applications (e.g., GitHub, Slack, Gmail), we will use **Composio**. Do not build new integrations from scratch if a suitable one exists in Composio.
+
+### Example Flow:
+1.  An agent, powered by Mastra, receives a user request.
+2.  The Mastra agent's reasoning loop determines a tool is needed.
+3.  The agent calls the appropriate tool from the toolbelt provided by Composio.
+4.  Composio handles the secure authentication (OAuth) and API communication with the external service.
+5.  The result is returned to the Mastra agent to continue its task.
 ## Agent and Tool Architecture
 
 Our agent architecture separates the "brain" from the "toolbelt" to maximize development velocity and leverage specialized platforms.
